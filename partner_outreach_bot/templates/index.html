@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Partner Outreach Bot</title>
+</head>
+<body>
+    <h1>Generate Outreach Email</h1>
+    <form method="POST" action="/generate">
+        <label>Company Name:</label>
+        <input type="text" name="company_name"><br><br>
+        <label>Focus Area:</label>
+        <input type="text" name="focus_area"><br><br>
+        <label>Use Cases (comma separated):</label>
+        <input type="text" name="use_cases"><br><br>
+        <input type="submit" value="Generate Email">
+    </form>
+
+    {% if email %}
+        <h2>Generated Email:</h2>
+        <p>{{ email }}</p>
+    {% endif %}
+</body>
+</html>
