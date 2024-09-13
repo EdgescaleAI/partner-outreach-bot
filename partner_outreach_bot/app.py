@@ -1,29 +1,33 @@
-from flask import Flask, render_template, request
-from logic import OutreachGenerator
+from flask import Flask, render_template, request, jsonify
+from generator import ChatStrategyGenerator
+import asyncio
 
-# Create Flask app
 app = Flask(__name__)
 
-# Home route for the form
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# Route for generating email
-@app.route('/generate', methods=['POST'])
-def generate():
-    company_name = request.form['company_name']
-    focus_area = request.form['focus_area']
-    use_cases = request.form['use_cases'].split(",")
-    
-    # Create an instance of the OutreachGenerator class
-    generator = OutreachGenerator(company_name, focus_area, use_cases)
-    
-    # Call the email_generator method to get the email
-    email = generator.email_generator()
-    
-    # Render the same page with the generated email
-    return render_template('index.html', email=email)
+@app.route('/generate-text', methods=['POST'])
+async def generate():
+    data = request.get_json()  # Get JSON data from the request
+    user_question = data.get('user_question')
+    source = data.get('source')  # Source can be 'notion' or 'google_docs'
+
+    if not user_question:
+        return jsonify({'response': 'No question provided'}), 400
+
+    # Create an instance of the ChatStrategyGenerator class
+    generator = ChatStrategyGenerator()
+
+    # Depending on the source, call the appropriate generator function
+    if source == 'google_docs':
+        response = await generator.generate_response_from_google_docs(user_question)
+    else:
+        response = await generator.generate_response_from_notion(user_question)
+
+    # Return the response as JSON
+    return jsonify({'response': response})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=8000)
