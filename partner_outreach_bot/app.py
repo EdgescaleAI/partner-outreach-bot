@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify
 from generator import ChatStrategyGenerator
-import asyncio
 
 app = Flask(__name__)
 
@@ -9,10 +8,11 @@ def home():
     return render_template('index.html')
 
 @app.route('/generate-text', methods=['POST'])
-async def generate():
-    data = request.get_json()  # Get JSON data from the request
+def generate():
+    data = request.get_json()
     user_question = data.get('user_question')
-    source = data.get('source')  # Source can be 'notion' or 'google_docs'
+    source = data.get('source')  # Notion or Google Docs
+    model = data.get('model')  # Bedrock or OpenAI
 
     if not user_question:
         return jsonify({'response': 'No question provided'}), 400
@@ -20,14 +20,13 @@ async def generate():
     # Create an instance of the ChatStrategyGenerator class
     generator = ChatStrategyGenerator()
 
-    # Depending on the source, call the appropriate generator function
+    # Call the appropriate method based on the source (Notion or Google Docs)
     if source == 'google_docs':
-        response = await generator.generate_response_from_google_docs(user_question)
+        response = generator.generate_response_from_google_docs(user_question, model)
     else:
-        response = await generator.generate_response_from_notion(user_question)
+        response = generator.generate_response_from_notion(user_question, model)
 
-    # Return the response as JSON
     return jsonify({'response': response})
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=8000)
+    app.run(debug=True, host='0.0.0.0', port=3000)
