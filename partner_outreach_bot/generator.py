@@ -14,7 +14,7 @@ class ChatStrategyGenerator:
         Generates a response using Google Docs content as context and sends it to either Bedrock or OpenAI.
         """
         # Fetch the content from Google Docs (Google Doc ID fetched from environment variable)
-        google_doc_content = self.google_docs_client.get_document_content()
+        google_doc_content = self.google_docs_client.get_documents_content()
 
         if google_doc_content:
             prompt = f"""
