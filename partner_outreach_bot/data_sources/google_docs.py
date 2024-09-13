@@ -12,8 +12,8 @@ class GoogleDocsClient:
         self.token_path = 'partner_outreach_bot/data_sources/token.json'
         self.SCOPES = ['https://www.googleapis.com/auth/documents.readonly']
         
-        # Get Google Doc ID from environment variables
-        self.google_doc_id = os.getenv("GOOGLE_DOC_ID")
+        # Get Google Doc IDs from environment variables (comma-separated)
+        self.google_doc_ids = os.getenv("GOOGLE_DOC_IDS", "").split(",")
 
         # Load credentials from token.json if it exists, else authenticate using credentials.json
         if os.path.exists(self.token_path):
@@ -31,10 +31,27 @@ class GoogleDocsClient:
         # Build the Google Docs API service
         self.service = build('docs', 'v1', credentials=self.creds)
 
-    def get_document_content(self):
+    def get_documents_content(self):
+        """
+        Fetches and combines content from all Google Docs specified in the environment variable.
+        """
+        combined_content = ""
+        for doc_id in self.google_doc_ids:
+            doc_id = doc_id.strip()  # Clean up any extra whitespace
+            if doc_id:
+                content = self.get_document_content(doc_id)
+                if content:
+                    combined_content += f"\n--- Content from Document {doc_id} ---\n"
+                    combined_content += content
+        return combined_content if combined_content else "No content available from the provided documents."
+
+    def get_document_content(self, doc_id):
+        """
+        Fetches the content of a single Google Doc using the given document ID.
+        """
         try:
-            # Fetch the document using the Google Doc ID from the environment variable
-            document = self.service.documents().get(documentId=self.google_doc_id).execute()
+            # Fetch the document using the Google Doc ID
+            document = self.service.documents().get(documentId=doc_id).execute()
             
             # Extract the content from the document's body
             doc_content = document.get('body').get('content')
@@ -42,7 +59,7 @@ class GoogleDocsClient:
 
             return text_content
         except Exception as e:
-            print(f"Error retrieving document: {e}")
+            print(f"Error retrieving document {doc_id}: {e}")
             return None
 
     def extract_text(self, doc_content):
@@ -56,4 +73,3 @@ class GoogleDocsClient:
                     if 'textRun' in text_element:
                         text.append(text_element.get('textRun').get('content'))
         return ''.join(text)
-
