@@ -1,17 +1,43 @@
-from openai_api import OpenAIClient
+from data_sources import NotionClient, GoogleDocsClient
+from bedrock import BedrockClient
 
-class OutreachGenerator:
-    def __init__(self, company_name, focus_area, use_cases):
-        self.company_name = company_name
-        self.focus_area = focus_area
-        self.use_cases = use_cases
-        self.openai_client = OpenAIClient()  # Instantiate OpenAIClient
+class ChatStrategyGenerator:
+    def __init__(self):
+        # Initialize the clients for both Google Docs, Notion, and Bedrock
+        self.google_docs_client = GoogleDocsClient()
+        self.notion_client = NotionClient()
+        self.bedrock_client = BedrockClient()
 
-    def create_prompt(self):
-        """Creates the prompt based on the provided company details."""
-        return f"Write a personalized outreach email for {self.company_name}, introducing our infrastructure for {self.focus_area}. Highlight use cases such as {', '.join(self.use_cases)}."
-    
-    def email_generator(self):
-        """Generates the email using OpenAI's API."""
-        prompt = self.create_prompt()
-        return self.openai_client.get_completion(prompt)
+    async def generate_response_from_google_docs(self, user_question):
+        """
+        Generates a response using Google Docs content as context and sends it to Bedrock.
+        """
+        # Fetch the content from Google Docs (Google Doc ID fetched from environment variable)
+        google_doc_content = self.google_docs_client.get_document_content()
+        
+        # Combine the user input with the context from the Google Docs page
+        if google_doc_content:
+            prompt = f"User Question: {user_question}\nContext from Google Docs:\n{google_doc_content}"
+            print(prompt)
+            response = await self.bedrock_client.invoke_bedrock_model(prompt)
+            print(response)
+            return response
+        else:
+            return "No content found in the Google Doc."
+
+    async def generate_response_from_notion(self, user_question):
+        """
+        Generates a response using Notion content as context and sends it to Bedrock.
+        """
+        # Fetch the content from Notion
+        notion_context = self.notion_client.get_notion_page_content()
+        
+        # Combine the user input with the context from the Notion pages
+        if notion_context:
+            prompt = f"User Question: {user_question}\nContext from Notion:\n{notion_context}"
+            print(prompt)
+            response = await self.bedrock_client.invoke_bedrock_model(prompt)
+            return response
+            print(response)
+        else:
+            return "No content found in the Notion pages."

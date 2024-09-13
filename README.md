@@ -1,6 +1,6 @@
 # Partner Outreach Bot
 
-A GPT-powered bot designed to research marketplace partners and generate personalized outreach emails using OpenAI's API. It features a simple web interface (using Flask) to input partner details and create customized outreach emails.
+A bot designed to research marketplace partners and generate personalized outreach emails using AWS Bedrock’s LLM. It features a simple web interface (using Flask) to input partner details and create customized outreach emails.
 
 ## Features
 - Generate personalized outreach emails based on a partner's company name, focus area, and use cases.
@@ -15,8 +15,8 @@ Partner-Outreach-Bot/
 ├── partner_outreach_bot/       # Directory for project files
 │   ├── __init__.py            # Makes it a package
 │   ├── app.py                 # Main Flask app
-│   ├── openai_api.py          # Contains the logic to interact with OpenAI API
-│   ├── logic.py               # Business logic (email generation, input formatting)
+│   ├── bedrock.py             # Contains the logic to interact with AWS Bedrock
+│   ├── generator.py           # Business logic (email generation, input formatting)
 │   └── templates/             # HTML templates for the web interface
 │       └── index.html         # Input form for entering partner details
 ├── requirements.txt           # Python dependencies
@@ -41,36 +41,34 @@ source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 pip install -r requirements.txt
 ```
 
-4. Set up environment variables:
-Create a .env file in the root directory and add your OpenAI API key:
+4. Set up environment variables: Create a .env file in the root directory and add your AWS credentials and the necessary environment variables:
 ```bash
-OPENAI_API_KEY=your-openai-api-key
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION=us-west-2
+BEDROCK_ENDPOINT=https://bedrock.your-region.amazonaws.com
 ```
 
 5. Running the Bot
-Option 1: Run the script directly
+Run the script directly
 ```bash
-python partner_outreach_bot.py
+python partner_outreach_bot/app.py
 ```
 
-Option 2: Run the web app (Flask)
-```bash
-flask run
-```
-Open your browser and go to http://127.0.0.1:5000 to use the web interface.
+Open your browser and go to http://127.0.0.1:3000 to use the web interface.
 
 ## How it Works
 The script takes the partner company’s name, focus area, and use cases as inputs and uses the OpenAI GPT model to generate a customized outreach strategy.
 
 ## Usage
-Navigate to http://127.0.0.1:5000
-Enter the company name, focus area, and use cases in the form, then click "Generate Email."
-View the generated outreach email on the same page.
+Navigate to http://127.0.0.1:3000
+Enter the company name, focus area, and use cases in the form, then click "Generate strategy."
+View the generated outreach strategy on the same page.
 
 ## Technologies Used
 - Python: Core scripting language.
 - Flask: Lightweight web framework for the user interface.
-- OpenAI API: GPT-3.5 model for generating outreach emails.
+- AWS Bedrock: Large language models for generating outreach strategy.
 
 ## License
 This project is licensed under the MIT License. See the LICENSE file for details.
