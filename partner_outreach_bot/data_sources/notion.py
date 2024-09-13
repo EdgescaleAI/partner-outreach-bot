@@ -21,7 +21,7 @@ class NotionClient:
             response = requests.get(url, headers=self.headers)
             response.raise_for_status()  # Raise an exception for HTTP errors
             data = response.json()
-
+            print(data)
             # Extract text and images from the response
             return self.extract_content(data)
 
